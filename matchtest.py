@@ -12,10 +12,11 @@ def fetch_players_from_url(url):
     soup = BeautifulSoup(res.text, "html.parser")
 
     all_text = soup.get_text()
-    print(all_text)
+    # print(all_text)
     # print(soup)
     # ひらがな・カタカナ・漢字のみ、2文字以上の連続文字列を選手名候補として抽出
-    # candidates = list(set(re.findall(r'[ぁ-んァ-ン一-龥]{2,}', all_text)))
+    candidates = list(set(re.findall(r'[ぁ-んァ-ン一-龥]{2,}', all_text)))
+    print(candidates)
     return soup
 
 
