@@ -4,7 +4,6 @@ import io
 import subprocess
 import sys
 import re
-import
 # チャンネル設定
 channels = [
     {
@@ -111,3 +110,6 @@ if __name__ == "__main__":
         names = extract_names_from_text(ocr_result)
         for n in names:
             print("---", n)
+
+        sequence_name = "".join(names)
+        print(sequence_name)
