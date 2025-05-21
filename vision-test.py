@@ -4,7 +4,7 @@ import io
 import subprocess
 import sys
 import re
-
+import
 # チャンネル設定
 channels = [
     {
@@ -25,6 +25,11 @@ channels = [
     {
         "name": "D",
         "url": "https://www.youtube.com/watch?v=RCGzJmPNWZ4",
+        "crop_box": (400, 95, 700, 260)
+    },
+    {
+        "name": "test",
+        "url": "https://www.youtube.com/watch?v=9kaqmTjWvys&t=1s",
         "crop_box": (400, 95, 700, 260)
     }
 ]
