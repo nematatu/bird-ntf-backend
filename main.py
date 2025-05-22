@@ -3,6 +3,9 @@ from image_utils import get_video_url, take_screenshot, crop_image
 from name_extractor import extract_names_from_text, concat_names
 from match_scraper import fetch_match_players
 from matcher import find_similar_names
+from flask import Flask, jsonify
+
+app = Flask(__name__)
 
 channels = [
     {
@@ -30,25 +33,46 @@ channels = [
 url = "http://www.badminton-a.com/2025circuit/20250524_result_t_02_s.htm"
 match_players_opt_ocr, match_players = fetch_match_players(url)
 
-for channel in channels:
-    name = channel["name"]
-    print(f"\n==== チャンネル{name} ====")
 
-    video_url = get_video_url(channel["url"])
-    screenshot_img = take_screenshot(video_url)
-    cropped_img = crop_image(screenshot_img, channel["crop_box"])
+def process_matches():
+    # 1) 試合表をスクレイピング
+    match_players_opt_ocr, match_players = fetch_match_players(url)
 
-    text = run_vision_ocr(cropped_img)
-    names = extract_names_from_text(text)
-    concat_name = concat_names(names)
+    results = []
+    for ch in channels:
+        # 2) 動画URL → screenshot → crop
+        stream = get_video_url(ch["url"])
+        shot = take_screenshot(stream)
+        crop = crop_image(shot, ch["crop_box"])
 
-    print("OCRの結果:", concat_name)
-    print("類似結果:")
-    result = find_similar_names(
-        match_players_opt_ocr, match_players,  concat_name)
+        # 3) OCR → 名前抽出 → 連結
+        text = run_vision_ocr(crop)
+        names = extract_names_from_text(text)
+        concat_name = concat_names(names)
 
-    if result:
-        match_name, score = result
-        print(match_name)
-    else:
-        print("No match")
+        # 4) 類似度マッチング
+        match = find_similar_names(
+            match_players_opt_ocr, match_players, concat_name)
+        if match:
+            matched_name, score = match
+        else:
+            matched_name, score = None, None
+
+        # 5) レスポンス用にまとめる
+        results.append({
+            "channel": ch["name"],
+            "ocr": concat_name,
+            "matched": matched_name,
+            "score": score
+        })
+    return results
+
+
+@app.route("/results", methods=["GET"])
+def get_results():
+    data = process_matches()
+    return jsonify(data)
+
+
+if __name__ == "__main__":
+    app.run(port=5000)
