@@ -4,8 +4,10 @@ from name_extractor import extract_names_from_text, concat_names
 from match_scraper import fetch_match_players
 from matcher import find_similar_names
 from flask import Flask, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 channels = [
     {
@@ -75,4 +77,4 @@ def get_results():
 
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(host='0.0.0.0', port=5000)
